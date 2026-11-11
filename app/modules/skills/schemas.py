@@ -4,7 +4,7 @@ from typing import Annotated
 
 from pydantic import AfterValidator, Field, StringConstraints, field_validator
 
-from app.core.schemas import CamelInputModel, CamelModel
+from app.core.schemas import CamelInputModel, CamelModel, reject_null
 from app.modules.skills.enums import SkillCategory
 
 
@@ -37,14 +37,7 @@ class SkillUpdate(CamelInputModel):
     years: Years | None = None
     last_used_year: LastUsedYear = None
 
-    @field_validator("name", "category", "level", "years")
-    @classmethod
-    def reject_explicit_null(cls, value: object) -> object:
-        # Runs only for fields present in the request; omitted fields keep their default.
-        # These columns are NOT NULL, so an explicit null must be a 422, not a database error.
-        if value is None:
-            raise ValueError("cannot be null")
-        return value
+    _no_nulls = field_validator("name", "category", "level", "years")(reject_null)
 
 
 class SkillRead(CamelModel):
