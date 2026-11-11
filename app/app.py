@@ -1,6 +1,5 @@
-from collections.abc import AsyncIterator, Callable, Mapping
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Any
 
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,10 +39,7 @@ def setup_middlewares(app: FastAPI, settings: Settings) -> None:
     )
 
 
-def app_factory(
-    settings: Settings | None = None,
-    dependency_overrides: Mapping[Callable[..., Any], Callable[..., Any]] | None = None,
-) -> FastAPI:
+def app_factory(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     app = FastAPI(
         title="CVariant API",
@@ -53,9 +49,6 @@ def app_factory(
         debug=settings.DEBUG,
         lifespan=lifespan,
     )
-    if dependency_overrides:
-        app.dependency_overrides.update(dependency_overrides)
-
     setup_routing(app)
     setup_middlewares(app, settings)
     setup_exception_handlers(app)

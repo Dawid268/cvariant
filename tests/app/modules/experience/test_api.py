@@ -363,3 +363,42 @@ async def test_delete_unknown_experience_returns_404(client: AsyncClient) -> Non
     # THEN
     assert response.status_code == 404
     assert response.json()["error"]["code"] == "not_found"
+
+
+async def test_tags_have_the_same_order_in_every_response(client: AsyncClient) -> None:
+    # GIVEN - skills created in non-alphabetical order
+    rxjs = await create_skill(client, "RxJS")
+    ngrx = await create_skill(client, "NgRx")
+    angular = await create_skill(client, "Angular")
+    experience = await create_experience(client)
+
+    # WHEN
+    created = await create_bullet(client, experience["id"], skillIds=[rxjs, angular, ngrx])
+    patched = await client.patch(
+        f"{URL}/{experience['id']}/bullets/{created['id']}",
+        json={"skillIds": [rxjs, angular]},
+    )
+    fetched = (await client.get(f"{URL}/{experience['id']}")).json()["bullets"][0]
+
+    # THEN
+    assert [s["name"] for s in created["skills"]] == ["Angular", "NgRx", "RxJS"]
+    assert [s["name"] for s in patched.json()["skills"]] == ["Angular", "RxJS"]
+    assert fetched["skills"] == patched.json()["skills"]
+
+
+async def test_patch_bullet_that_is_not_first_in_the_list(client: AsyncClient) -> None:
+    # GIVEN
+    experience = await create_experience(client)
+    await create_bullet(client, experience["id"], text="first")
+    second = await create_bullet(client, experience["id"], text="second")
+
+    # WHEN
+    response = await client.patch(
+        f"{URL}/{experience['id']}/bullets/{second['id']}",
+        json={"text": "second, edited"},
+    )
+
+    # THEN
+    assert response.status_code == 200
+    bullets = (await client.get(f"{URL}/{experience['id']}")).json()["bullets"]
+    assert [b["text"] for b in bullets] == ["first", "second, edited"]

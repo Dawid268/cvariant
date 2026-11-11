@@ -13,7 +13,7 @@ from app.modules.experience.schemas import (
     ExperienceUpdate,
 )
 
-router = APIRouter(prefix="/experiences", tags=["experience"])
+router = APIRouter(prefix="/experiences", tags=["experiences"])
 
 
 @router.get("")

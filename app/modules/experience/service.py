@@ -146,7 +146,10 @@ async def _get_bullet(
 async def _load_skills(session: AsyncSession, skill_ids: list[uuid.UUID]) -> list[Skill]:
     if not skill_ids:
         return []
-    result = await session.scalars(select(Skill).where(Skill.id.in_(skill_ids)))
+    # Same order as the Experience -> bullets -> skills relationship, so POST/PATCH and GET
+    # return tags in one consistent order.
+    query = select(Skill).where(Skill.id.in_(skill_ids)).order_by(Skill.name)
+    result = await session.scalars(query)
     skills = list(result.all())
     missing = set(skill_ids) - {skill.id for skill in skills}
     if missing:
