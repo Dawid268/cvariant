@@ -23,6 +23,13 @@ class ConflictError(DomainError):
     code = "conflict"
 
 
+class BusinessRuleError(DomainError):
+    """A request that is well-formed but breaks a business rule (e.g. dates out of order)."""
+
+    status_code = status.HTTP_422_UNPROCESSABLE_CONTENT
+    code = "business_rule_violation"
+
+
 async def domain_error_handler(_request: Request, exc: Exception) -> JSONResponse:
     assert isinstance(exc, DomainError)  # noqa: S101 - registered only for DomainError
     return JSONResponse(

@@ -19,3 +19,14 @@ class CamelInputModel(CamelModel):
     """
 
     model_config = ConfigDict(extra="forbid")
+
+
+def reject_null(value: object) -> object:
+    """For PATCH bodies: an omitted field means "no change", an explicit null is an error.
+
+    Pydantic runs field validators only for fields present in the request, so omitted
+    fields keep their default and never reach this check.
+    """
+    if value is None:
+        raise ValueError("cannot be null")
+    return value
