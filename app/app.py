@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.db import engine
 from app.core.errors import setup_exception_handlers
 from app.modules.health.api import router as health_router
+from app.modules.skills.api import router as skills_router
 from app.settings import Settings, get_settings
 
 API_V1_PREFIX = "/api/v1"
@@ -23,7 +24,7 @@ def setup_routing(app: FastAPI) -> None:
     app.include_router(health_router)
 
     api_v1 = APIRouter(prefix=API_V1_PREFIX)
-    # Feature modules are registered here, e.g. api_v1.include_router(skills_router)
+    api_v1.include_router(skills_router)
     app.include_router(api_v1)
 
 
