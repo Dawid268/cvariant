@@ -97,7 +97,7 @@ async def test_create_experience_starting_in_future_returns_422(client: AsyncCli
 
     # THEN
     assert response.status_code == 422
-    assert response.json()["detail"][0]["loc"] == ["body", "startDate"]
+    assert response.json()["error"]["details"][0]["field"] == "startDate"
 
 
 async def test_patch_experience_changes_only_sent_fields(client: AsyncClient) -> None:
@@ -242,7 +242,7 @@ async def test_create_bullet_with_duplicate_skill_returns_422(client: AsyncClien
 
     # THEN
     assert response.status_code == 422
-    assert response.json()["detail"][0]["loc"] == ["body", "skillIds"]
+    assert response.json()["error"]["details"][0]["field"] == "skillIds"
 
 
 async def test_patch_bullet_replaces_skills(client: AsyncClient) -> None:

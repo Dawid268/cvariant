@@ -56,7 +56,7 @@ async def test_create_skill_with_level_out_of_range_returns_422(client: AsyncCli
 
     # THEN
     assert response.status_code == 422
-    assert response.json()["detail"][0]["loc"] == ["body", "level"]
+    assert response.json()["error"]["details"][0]["field"] == "level"
 
 
 async def test_create_skill_with_duplicate_name_ignores_case_and_returns_409(
@@ -177,7 +177,7 @@ async def test_create_skill_with_last_used_year_in_future_returns_422(client: As
 
     # THEN
     assert response.status_code == 422
-    assert response.json()["detail"][0]["loc"] == ["body", "lastUsedYear"]
+    assert response.json()["error"]["details"][0]["field"] == "lastUsedYear"
 
 
 @pytest.mark.parametrize("field", ["name", "category", "level", "years"])
@@ -193,7 +193,7 @@ async def test_patch_with_null_in_required_field_returns_422(
 
     # THEN
     assert response.status_code == 422
-    assert response.json()["detail"][0]["loc"] == ["body", field]
+    assert response.json()["error"]["details"][0]["field"] == field
 
 
 async def test_create_skill_with_unknown_field_returns_422(client: AsyncClient) -> None:
@@ -211,6 +211,6 @@ async def test_create_skill_with_unknown_field_returns_422(client: AsyncClient) 
 
     # THEN
     assert response.status_code == 422
-    error = response.json()["detail"][0]
+    error = response.json()["error"]["details"][0]
     assert error["type"] == "extra_forbidden"
-    assert error["loc"] == ["body", "lastUsedyear"]
+    assert error["field"] == "lastUsedyear"

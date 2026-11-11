@@ -63,6 +63,25 @@ uv run alembic revision --autogenerate -m "describe change"
 Tests run against a dedicated `cvariant_test` database. Each test runs inside a transaction that is
 rolled back afterwards, so tests never see each other's data.
 
+## Error responses
+
+Every error has the same shape, so a client needs a single handler:
+
+```json
+{
+  "error": {
+    "code": "validation_error",
+    "message": "Request validation failed",
+    "details": [
+      {"location": "body", "field": "level", "message": "Input should be less than or equal to 5", "type": "less_than_equal"}
+    ]
+  }
+}
+```
+
+Branch on `code` (`validation_error`, `business_rule_violation`, `not_found`, `conflict`,
+`internal_error`, ...), never on `message`. See [ADR 0002](adl/0002-unified-error-response-format.md).
+
 ## Project structure
 
 ```

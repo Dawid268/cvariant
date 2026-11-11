@@ -3,6 +3,7 @@ import uuid
 from fastapi import APIRouter, status
 
 from app.core.db import SessionDep
+from app.core.errors import error_response_docs
 from app.modules.experience import service
 from app.modules.experience.schemas import (
     BulletCreate,
@@ -22,19 +23,19 @@ async def list_experiences(session: SessionDep) -> list[ExperienceRead]:
     return [ExperienceRead.model_validate(experience) for experience in experiences]
 
 
-@router.get("/{experience_id}")
+@router.get("/{experience_id}", responses=error_response_docs(404, 422))
 async def get_experience(experience_id: uuid.UUID, session: SessionDep) -> ExperienceRead:
     experience = await service.get_experience(session, experience_id)
     return ExperienceRead.model_validate(experience)
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED, responses=error_response_docs(422))
 async def create_experience(payload: ExperienceCreate, session: SessionDep) -> ExperienceRead:
     experience = await service.create_experience(session, payload)
     return ExperienceRead.model_validate(experience)
 
 
-@router.patch("/{experience_id}")
+@router.patch("/{experience_id}", responses=error_response_docs(404, 422))
 async def update_experience(
     experience_id: uuid.UUID,
     payload: ExperienceUpdate,
@@ -44,12 +45,20 @@ async def update_experience(
     return ExperienceRead.model_validate(experience)
 
 
-@router.delete("/{experience_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{experience_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=error_response_docs(404, 422),
+)
 async def delete_experience(experience_id: uuid.UUID, session: SessionDep) -> None:
     await service.delete_experience(session, experience_id)
 
 
-@router.post("/{experience_id}/bullets", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{experience_id}/bullets",
+    status_code=status.HTTP_201_CREATED,
+    responses=error_response_docs(404, 422),
+)
 async def create_bullet(
     experience_id: uuid.UUID,
     payload: BulletCreate,
@@ -59,7 +68,7 @@ async def create_bullet(
     return BulletRead.model_validate(bullet)
 
 
-@router.patch("/{experience_id}/bullets/{bullet_id}")
+@router.patch("/{experience_id}/bullets/{bullet_id}", responses=error_response_docs(404, 422))
 async def update_bullet(
     experience_id: uuid.UUID,
     bullet_id: uuid.UUID,
@@ -70,7 +79,11 @@ async def update_bullet(
     return BulletRead.model_validate(bullet)
 
 
-@router.delete("/{experience_id}/bullets/{bullet_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{experience_id}/bullets/{bullet_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=error_response_docs(404, 422),
+)
 async def delete_bullet(
     experience_id: uuid.UUID,
     bullet_id: uuid.UUID,
