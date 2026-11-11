@@ -81,6 +81,8 @@ addopts = "--cov=app --cov-report=term-missing"
 [tool.coverage.run]
 branch = true
 source = ["app"]
+# async SQLAlchemy runs code in greenlets; without this coverage loses lines after `await`
+concurrency = ["thread", "greenlet"]
 
 [tool.coverage.report]
 exclude_also = ["if TYPE_CHECKING:"]

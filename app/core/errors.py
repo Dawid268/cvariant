@@ -18,6 +18,11 @@ class NotFoundError(DomainError):
     code = "not_found"
 
 
+class ConflictError(DomainError):
+    status_code = status.HTTP_409_CONFLICT
+    code = "conflict"
+
+
 async def domain_error_handler(_request: Request, exc: Exception) -> JSONResponse:
     assert isinstance(exc, DomainError)  # noqa: S101 - registered only for DomainError
     return JSONResponse(
