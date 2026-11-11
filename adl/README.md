@@ -12,3 +12,4 @@ likely to be questioned later. Routine changes do not need one.
 ## Records
 
 - [0001 – FastAPI with async SQLAlchemy and request-scoped sessions](0001-fastapi-async-sqlalchemy.md) – Accepted
+- [0002 – Unified error response format](0002-unified-error-response-format.md) – Accepted

@@ -5,7 +5,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.db import engine
-from app.core.errors import setup_exception_handlers
+from app.core.errors import error_response_docs, setup_exception_handlers
 from app.modules.experience.api import router as experience_router
 from app.modules.health.api import router as health_router
 from app.modules.skills.api import router as skills_router
@@ -23,7 +23,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
 def setup_routing(app: FastAPI) -> None:
     app.include_router(health_router)
 
-    api_v1 = APIRouter(prefix=API_V1_PREFIX)
+    api_v1 = APIRouter(prefix=API_V1_PREFIX, responses=error_response_docs(500))
     api_v1.include_router(skills_router)
     api_v1.include_router(experience_router)
     app.include_router(api_v1)
@@ -46,7 +46,6 @@ def app_factory(settings: Settings | None = None) -> FastAPI:
         description="Generate CV variants tailored to a specific job offer.",
         version=settings.VERSION,
         root_path=settings.API_ROOT_PATH,
-        debug=settings.DEBUG,
         lifespan=lifespan,
     )
     setup_routing(app)
