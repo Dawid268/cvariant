@@ -9,6 +9,7 @@ from app.core.errors import error_response_docs, setup_exception_handlers
 from app.modules.experience.api import router as experience_router
 from app.modules.health.api import router as health_router
 from app.modules.skills.api import router as skills_router
+from app.modules.tailoring.api import router as tailoring_router
 from app.settings import Settings, get_settings
 
 API_V1_PREFIX = "/api/v1"
@@ -26,6 +27,7 @@ def setup_routing(app: FastAPI) -> None:
     api_v1 = APIRouter(prefix=API_V1_PREFIX, responses=error_response_docs(500))
     api_v1.include_router(skills_router)
     api_v1.include_router(experience_router)
+    api_v1.include_router(tailoring_router)
     app.include_router(api_v1)
 
 
