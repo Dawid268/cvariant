@@ -3,7 +3,7 @@ import os
 # Point the app at the test database BEFORE anything imports the settings.
 os.environ["POSTGRES_DB"] = os.environ.get("TEST_POSTGRES_DB", "cvariant_test")
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 
 import pytest
 from alembic import command
@@ -26,14 +26,14 @@ def migrated_database() -> None:
 
 
 @pytest.fixture(scope="session")
-async def app() -> AsyncIterator[FastAPI]:
+async def app() -> AsyncGenerator[FastAPI]:
     application = app_factory()
     async with LifespanManager(application):
         yield application
 
 
 @pytest.fixture
-async def db_connection() -> AsyncIterator[AsyncConnection]:
+async def db_connection() -> AsyncGenerator[AsyncConnection]:
     """A connection with an open transaction that is rolled back after each test.
 
     Everything a test writes - through the API or directly - happens inside this
@@ -57,7 +57,7 @@ def _session_on(connection: AsyncConnection) -> AsyncSession:
 
 
 @pytest.fixture
-async def db_session(db_connection: AsyncConnection) -> AsyncIterator[AsyncSession]:
+async def db_session(db_connection: AsyncConnection) -> AsyncGenerator[AsyncSession]:
     """A session for preparing or checking data directly in the database."""
     session = _session_on(db_connection)
     try:
@@ -67,14 +67,14 @@ async def db_session(db_connection: AsyncConnection) -> AsyncIterator[AsyncSessi
 
 
 @pytest.fixture
-async def client(app: FastAPI, db_connection: AsyncConnection) -> AsyncIterator[AsyncClient]:
+async def client(app: FastAPI, db_connection: AsyncConnection) -> AsyncGenerator[AsyncClient]:
     """HTTP client where every request gets its own session, exactly like in production.
 
     Sharing one session between requests would let a later request see stale objects
     from the identity map of an earlier one (e.g. after a database-level cascade).
     """
 
-    async def override_get_session() -> AsyncIterator[AsyncSession]:
+    async def override_get_session() -> AsyncGenerator[AsyncSession]:
         async with _session_on(db_connection) as session:
             try:
                 yield session
